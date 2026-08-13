@@ -3,7 +3,6 @@ const cities = require("./cities");
 const { places, descriptors } = require("./seedHelpers");
 const Campground = require("../models/campground");
 
-// Connect to YelpCamp database
 mongoose.connect("mongodb://127.0.0.1:27017/yelp-camp");
 
 const db = mongoose.connection;
@@ -14,34 +13,34 @@ db.once("open", () => {
   console.log("Database Connected");
 });
 
-const sample = array => array[Math.floor(Math.random() * array.length)];
+const sample = (array) => {
+  return array[Math.floor(Math.random() * array.length)];
+};
 
-
-// Seed function
 const seedDB = async () => {
-  // Delete all existing campgrounds
   await Campground.deleteMany({});
 
+  for (let i = 0; i < 50; i++) {
+    const randomCity = Math.floor(Math.random() * cities.length);
+    const price = Math.floor(Math.random() * 20) + 10;
 
-//   // Create test campground
-//   const c = new Campground({
-//     title: "Purple Field",
-//     description: "keep camping",
-//   });
+    const campground = new Campground({
+      title: `${sample(descriptors)} ${sample(places)}`,
 
-//   // Save campground to MongoDB
-//   await c.save();
-  for(let i = 0; i < 50; i++) {
-    const random1000 = Math.floor(Math.random() * 1000);
-    const camp = new Campground({
-      location: `${cities[random1000].city},${cities[random1000].state}`,
-      title: `'${sample(descriptors)} ${sample(places)}`,
+      location: `${cities[randomCity].city}, ${cities[randomCity].state}`,
+
+      image: `https://picsum.photos/600/400?random=${i}`,
+
+      description:
+        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+
+      price: price,
     });
-    await camp.save();
+
+    await campground.save();
   }
 };
 
-// Run seed function
 seedDB()
   .then(() => {
     console.log("Database Seeded");
