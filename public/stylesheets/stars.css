@@ -1,0 +1,42 @@
+.starability-basic {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 4px;
+    border: 0;
+    padding: 0;
+}
+
+.starability-basic input {
+    display: none;
+}
+
+.starability-basic label {
+    width: 35px;
+    height: 35px;
+    font-size: 0;
+    color: #ccc;
+    cursor: pointer;
+    position: relative;
+}
+
+.starability-basic label::before {
+    content: "★";
+    font-size: 35px;
+    line-height: 35px;
+}
+
+/* Hover */
+.starability-basic label:hover,
+.starability-basic label:hover ~ label {
+    color: #ffc107;
+}
+
+/* Selected rating */
+.starability-basic:has(#rate1:checked) label:nth-of-type(1),
+.starability-basic:has(#rate2:checked) label:nth-of-type(-n+2),
+.starability-basic:has(#rate3:checked) label:nth-of-type(-n+3),
+.starability-basic:has(#rate4:checked) label:nth-of-type(-n+4),
+.starability-basic:has(#rate5:checked) label:nth-of-type(-n+5) {
+    color: #ffc107;
+}

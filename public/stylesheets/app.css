@@ -1,0 +1,11 @@
+body {
+    min-height: 100vh;
+}
+
+main {
+    padding-bottom: 40px;
+}
+
+footer {
+    margin-top: auto;
+}

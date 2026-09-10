@@ -1,0 +1,85 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5">
+
+                <h1 class="text-center mb-4">
+                    Login
+                </h1>
+
+                <form
+                    action="/login"
+                    method="POST"
+                    class="validate-form"
+                    novalidate
+                >
+
+                    <div class="mb-3">
+                        <label
+                            class="form-label"
+                            for="username"
+                        >
+                            Username
+                        </label>
+
+                        <input
+                            class="form-control"
+                            type="text"
+                            id="username"
+                            name="username"
+                            required
+                            autofocus
+                        >
+
+                        <div class="invalid-feedback">
+                            Please enter your username.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label
+                            class="form-label"
+                            for="password"
+                        >
+                            Password
+                        </label>
+
+                        <input
+                            class="form-control"
+                            type="password"
+                            id="password"
+                            name="password"
+                            required
+                        >
+
+                        <div class="invalid-feedback">
+                            Please enter your password.
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button
+                            class="btn btn-success btn-lg"
+                            type="submit"
+                        >
+                            Login
+                        </button>
+                    </div>
+
+                </form>
+
+                <hr class="my-4">
+
+                <p class="text-center mb-0">
+                    Don't have an account?
+                    <a href="/register">Register</a>
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>
