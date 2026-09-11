@@ -180,6 +180,7 @@
     <!-- ================= REVIEWS ================= -->
 
     <div class="col-md-6">
+
       <div id="map" style="width: 100%; height: 300px;"></div>
 
 
@@ -447,18 +448,14 @@
 
 </div>
 
-maptilersdk.config.apiKey = maptilerApiKey;
 
-const map = new maptilersdk.Map({
-    container: 'map',
-    style: maptilersdk.MapStyle.BRIGHT,
-    center: campground.geometry.coordinates, // starting position [lng, lat]
-    zoom: 10 // starting zoom
-});
+<!-- ================= MAP DATA ================= -->
 
-<%-"<script>"%>
-const maptilerApiKey = '<%- process.env.MAPTILER_API_KEY %>';
-const campground = <%- JSON.stringify(campground) %>;
-<%-"</script>"%>
+<script>
+  const maptilerApiKey = '<%- process.env.MAPTILER_API_KEY %>';
+  const campground = <%- JSON.stringify(campground) %>;
+</script>
+
+<!-- ================= MAP JAVASCRIPT ================= -->
 
 <script src="/javascripts/showPageMap.js"></script>

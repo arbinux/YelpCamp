@@ -9,17 +9,26 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const session = require("express-session");
 const flash = require("connect-flash");
+const { MongoStore } = require("connect-mongo");
 const ExpressError = require("./utils/ExpressError");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
+
 const userRoutes = require("./routes/users");
 const campgroundRoutes = require("./routes/campgrounds");
 const reviewRoutes = require("./routes/reviews");
+
 const User = require("./models/user");
 const sanitizeV5 = require("./utils/mongoSanitizeV5.js");
 const helmet = require("helmet");
 
+const dbUrl = process.env.MONGODB_URL || "mongodb://127.0.0.1:27017/yelp-camp";
+
 const app = express();
+
+// ========================
+// HELMET / SECURITY
+// ========================
 
 app.use(
   helmet({
@@ -29,12 +38,14 @@ app.use(
 
         scriptSrc: [
           "'self'",
+          "'unsafe-inline'",
           "https://cdn.jsdelivr.net",
           "https://cdn.maptiler.com",
         ],
 
         styleSrc: [
           "'self'",
+          "'unsafe-inline'",
           "https://cdn.jsdelivr.net",
           "https://cdn.maptiler.com",
         ],
@@ -45,14 +56,23 @@ app.use(
           "blob:",
           "https://res.cloudinary.com",
           "https://api.maptiler.com",
+          "https://images.unsplash.com",
         ],
 
         connectSrc: ["'self'", "https://api.maptiler.com"],
 
-        fontSrc: ["'self'", "https://cdn.jsdelivr.net"],
+        fontSrc: [
+          "'self'",
+          "https://cdn.jsdelivr.net",
+          "https://api.maptiler.com",
+        ],
+
+        workerSrc: ["'self'", "blob:"],
 
         objectSrc: ["'none'"],
+
         baseUri: ["'self'"],
+
         frameAncestors: ["'self'"],
       },
     },
@@ -66,7 +86,7 @@ app.set("query parser", "extended");
 // ========================
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/yelp-camp-map")
+  .connect(dbUrl)
   .then(() => {
     console.log("Database Connected");
   })
@@ -80,7 +100,9 @@ mongoose
 // ========================
 
 app.engine("ejs", ejsMate);
+
 app.set("view engine", "ejs");
+
 app.set("views", path.join(__dirname, "views"));
 
 app.use(sanitizeV5({ replaceWith: "_" }));
@@ -100,16 +122,41 @@ app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
 // ========================
+// SESSION STORE
+// ========================
+
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+
+  touchAfter: 24 * 60 * 60,
+
+  crypto: {
+    secret: process.env.SECRET,
+  },
+});
+
+store.on("error", function (e) {
+  console.log("SESSION STORE ERROR", e);
+});
+
+// ========================
 // SESSION
 // ========================
 
 const sessionConfig = {
+  store: store,
+
   secret: process.env.SECRET,
+
   resave: false,
+
   saveUninitialized: true,
+
   cookie: {
     httpOnly: true,
+
     expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+
     maxAge: 1000 * 60 * 60 * 24 * 7,
   },
 };
@@ -127,10 +174,13 @@ app.use(flash());
 // ========================
 
 app.use(passport.initialize());
+
 app.use(passport.session());
 
 passport.use(new LocalStrategy(User.authenticate()));
+
 passport.serializeUser(User.serializeUser());
+
 passport.deserializeUser(User.deserializeUser());
 
 // ========================
@@ -139,8 +189,11 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next) => {
   res.locals.currentUser = req.user;
+
   res.locals.success = req.flash("success");
+
   res.locals.error = req.flash("error");
+
   next();
 });
 
@@ -157,7 +210,9 @@ app.get("/", (req, res) => {
 // ========================
 
 app.use("/", userRoutes);
+
 app.use("/campgrounds", campgroundRoutes);
+
 app.use("/campgrounds/:id/reviews", reviewRoutes);
 
 // ========================
@@ -197,6 +252,8 @@ app.use((err, req, res, next) => {
 // SERVER
 // ========================
 
-app.listen(3000, () => {
-  console.log("Serving on port 3000");
+const port = process.env.PORT || 3000;
+
+app.listen(port, () => {
+  console.log(`Serving on port ${port}`);
 });

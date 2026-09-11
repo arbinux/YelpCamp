@@ -1,17 +1,15 @@
 const mongoose = require("mongoose");
+
 const cities = require("./cities");
 const { places, descriptors } = require("./seedHelpers");
+
 const Campground = require("../models/campground");
 const User = require("../models/user");
 
-mongoose
-  .connect("mongodb://127.0.0.1:27017/yelp-camp-map")
-  .then(() => {
-    console.log("Database Connected");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+const dbUrl =
+  process.env.MONGODB_URL || "mongodb://127.0.0.1:27017/yelp-camp-map";
+
+mongoose.connect(dbUrl);
 
 const sample = (array) => {
   return array[Math.floor(Math.random() * array.length)];
@@ -28,6 +26,7 @@ const seedDB = async () => {
 
   for (let i = 0; i < 50; i++) {
     const randomCity = Math.floor(Math.random() * cities.length);
+
     const price = Math.floor(Math.random() * 20) + 10;
 
     const campground = new Campground({
